@@ -210,7 +210,7 @@ void angles_to_uptime(){
   servo_value[1] = ((joint_angles[1])/180)*1855+545;
   servo_value[2] = ((joint_angles[2]-90)/180)*1855+545;
   servo_value[3] = ((joint_angles[3]-90)/180)*1855+545
-  // TODO: assign joints 5 and 6, get joint 5 and 6 input
+  
 }
 
 void servo_protection(){
