@@ -1,5 +1,6 @@
 // made by Harry Le Poer Trench 11/4/2025
-// significant ammounts of code taken from Lab_7_Robot_Arm_Control_Code_RM2025_print_degrees by Rayner Moss, I make no effort to delineate between the sections,
+// sections of code taken from Lab_7_Robot_Arm_Control_Code_RM2025_print_degrees by Rayner Moss,
+// the sections copied can be most of the var names, init function and slow raise, other parts are majority own work 
 #include <VarSpeedServo.h>
 #include <SoftwareSerial.h>
 
@@ -55,7 +56,7 @@ int send_pos[6];
 
 // coordinate systems,
 int xyz[3] = {0,0,0};
-const int xyz_max[3] = {400,400,200} // the max values in any given direction. // note: y can go from -max to max, x & z cannot do that,
+const int xyz_max[3] = {400,400,200}; // the max values in any given direction. // note: y can go from -max to max, x & z cannot do that,
 int gripper_angle = 45;
 int servo_angle_5 = 0;
 int servo_angle_6 = 0;
@@ -142,7 +143,7 @@ void average_pot_values()
 void pot_values_to_outputs(){
   xyz[0] = (pot_average_value[0]*xyz_max[0])/1023;
   xyz[1] = (pot_average_value[1]*2*xyz_max[1])/1023-xyz_max[1]/2;
-  xyz[2] = (pot_average_value[2]*xyz_max[2])/1023
+  xyz[2] = (pot_average_value[2]*xyz_max[2])/1023;
   gripper_angle = (pot_average_value[3]/1023)*90; // gri[pper angle is constrained from 0 to 90 to stop it from crashing through the floor
   // take gripper values normally
   servo_value[4] = (pot_average_value[4]/1023)*1855+545;
@@ -171,14 +172,14 @@ void assign_angles(){ // if this fails it does not change the angles from the pr
   // checks that the point is actually in range of the angled limb
   if (lengs[3] > (lengs[0]+lengs[1])){
     #ifdef DEBUG
-    Serial.println("Angled out of bounds");
+    Serial.println("J3 out of bounds (too far)");
     #endif
     return;
   }
   // checks if distance is too tight, 
   if (lengs[3] < min_distance) {
     #ifdef DEBUG
-    Serial.println("Too close to base");
+    Serial.println("J3 out of bounds (too close)");
     #endif
     return;
   }
@@ -209,7 +210,7 @@ void angles_to_uptime(){
   servo_value[0] =  ((joint_angles[0]+90)/180)*1855+545;
   servo_value[1] = ((joint_angles[1])/180)*1855+545;
   servo_value[2] = ((joint_angles[2]-90)/180)*1855+545;
-  servo_value[3] = ((joint_angles[3]-90)/180)*1855+545
+  servo_value[3] = ((joint_angles[3]-90)/180)*1855+545;
   
 }
 
