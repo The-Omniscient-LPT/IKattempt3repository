@@ -4,7 +4,7 @@
 #include <VarSpeedServo.h>
 #include <SoftwareSerial.h>
 
-#define DEBUG // this is how you actually do debug testing
+//#define DEBUG // this is how you actually do debug testing
 #define PI 3.14159265
 
 #define BASE 11
@@ -55,6 +55,7 @@ int servo_speed[6] = {20,15,20,30,50,50};
 int send_pos[6];
 
 // coordinate systems,
+double temp_xyz[3] = {0,0,0};
 int xyz[3] = {0,0,0};
 const int xyz_max[3] = {400,400,200}; // the max values in any given direction. // note: y can go from -max to max, x & z cannot do that,
 int gripper_angle = 45;
@@ -124,7 +125,7 @@ void read_pots()
 {           
   pot_read_counts++;
 
-  for(int i = 2; i < 5; i++)
+  for(int i = 0; i < 6; i++)
   {
     pot_sum[i] += analogRead(pot[i]);
   }
@@ -137,20 +138,40 @@ void average_pot_values()
   for(int i = 0; i < 6; i++)
   {
     pot_average_value[i] = pot_sum[i]/pot_read_counts;
+    Serial.print(pot_average_value[i]);
+    Serial.print(" ");
   }
+  for(int i = 0; i < 6; i++){
+     pot_sum[i] = 0;
+  }
+  Serial.println();
 }
 
 void pot_values_to_outputs(){
-  xyz[0] = (pot_average_value[0]*xyz_max[0])/1023;
-  xyz[1] = (pot_average_value[1]*2*xyz_max[1])/1023-xyz_max[1]/2;
-  xyz[2] = (pot_average_value[2]*xyz_max[2])/1023;
+  temp_xyz[0] = (pot_average_value[0]*xyz_max[0])/1023;
+  temp_xyz[1] = (pot_average_value[1]*2*xyz_max[1])/1023-xyz_max[1]/2;
+  temp_xyz[2] = (pot_average_value[2]*xyz_max[2])/1023;
+  for (int i = 0; i < 3; i++){
+    xyz[i] = temp_xyz[i];
+  }
   gripper_angle = (pot_average_value[3]/1023)*90; // gri[pper angle is constrained from 0 to 90 to stop it from crashing through the floor
   // take gripper values normally
   servo_value[4] = (pot_average_value[4]/1023)*1855+545;
   servo_value[5] = (pot_average_value[5]/1023)*1000+1400;
 }
 
+void printvalues() {
+  for (int i = 0; i < 3; i++){
+    Serial.print(xyz[i]);
+    Serial.print(" ");
+  }
+  Serial.println();
+}
+
 void assign_angles(){ // if this fails it does not change the angles from the previous go, please do not modify joint_angles needlessly, I saw what you did with your other one and if you do, we have to add default values for this,
+
+    //printvalues();
+
   // first checks that the given point is within possible range, 
   if (sqrt(xyz[0]*xyz[0]+xyz[1]*xyz[1]+xyz[2]*xyz[2]) > (lengs[0]+lengs[1]+lengs[2])){
     #ifdef DEBUG
